@@ -1,0 +1,20 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "/home/alanmonu12/esp/esp-idf/components/bootloader/subproject",
+    "build_dir":          "/home/alanmonu12/esp/iot-button-spotify/build/bootloader",
+    "config_file":        "/home/alanmonu12/esp/iot-button-spotify/sdkconfig",
+    "config_defaults":    "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v4.2-dev-1415-ga2263571b",
+    "target":             "esp32",
+    "phy_data_partition": "",
+    "monitor_baud" :      "115200",
+    "monitor_toolprefix": "xtensa-esp32-elf-",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : "/home/alanmonu12/esp/esp-idf/components/efuse/Kconfig;/home/alanmonu12/esp/esp-idf/components/esp32/Kconfig;/home/alanmonu12/esp/esp-idf/components/esp_common/Kconfig;/home/alanmonu12/esp/esp-idf/components/log/Kconfig;/home/alanmonu12/esp/esp-idf/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "/home/alanmonu12/esp/esp-idf/components/bootloader/Kconfig.projbuild;/home/alanmonu12/esp/esp-idf/components/esptool_py/Kconfig.projbuild;/home/alanmonu12/esp/esp-idf/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "bootloader", "bootloader_support", "efuse", "esp32", "esp_common", "esp_rom", "esptool_py", "log", "main", "micro-ecc", "partition_table", "soc", "spi_flash", "xtensa", "" ],
+    "build_component_paths" : [ "/home/alanmonu12/esp/esp-idf/components/bootloader", "/home/alanmonu12/esp/esp-idf/components/bootloader_support", "/home/alanmonu12/esp/esp-idf/components/efuse", "/home/alanmonu12/esp/esp-idf/components/esp32", "/home/alanmonu12/esp/esp-idf/components/esp_common", "/home/alanmonu12/esp/esp-idf/components/esp_rom", "/home/alanmonu12/esp/esp-idf/components/esptool_py", "/home/alanmonu12/esp/esp-idf/components/log", "/home/alanmonu12/esp/esp-idf/components/bootloader/subproject/main", "/home/alanmonu12/esp/esp-idf/components/bootloader/subproject/components/micro-ecc", "/home/alanmonu12/esp/esp-idf/components/partition_table", "/home/alanmonu12/esp/esp-idf/components/soc", "/home/alanmonu12/esp/esp-idf/components/spi_flash", "/home/alanmonu12/esp/esp-idf/components/xtensa", "" ]
+}
