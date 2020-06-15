@@ -38,7 +38,7 @@ void app_main(void)
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     xTaskCreatePinnedToCore(wifi_Task, "wifi_task", 2048*2, NULL, 10, &xWifiTask, 1);
-    xTaskCreatePinnedToCore(DisplayTask, "DisplayTask", 2048, NULL, 10, &xDisplayTask, 0);
+    xTaskCreatePinnedToCore(DisplayTask, "DisplayTask", 2048*2, NULL, 10, &xDisplayTask, 0);
     //xTaskCreatePinnedToCore(server_Task, "server_task", 2048, NULL, 10, &xServerTask, 1);
     //xTaskCreatePinnedToCore(spotify_client_task, "spotify_client_task", 2048, NULL, 10, &xSpotifyTask, 0);
     

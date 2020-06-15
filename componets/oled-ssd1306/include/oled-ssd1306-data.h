@@ -42,11 +42,159 @@ typedef enum {
     White = 0x01  // Pixel is set. Color depends on OLED
 } SSD1306_COLOR;
 
+typedef enum {
+    OFF = 0U,
+    ON
+}SSD1306_DISPLAY_STATUS;
+
+typedef enum {
+    _16MUX = 0b00010000,
+    _17MUX,
+    _18MUX,
+    _19MUX,
+    _20MUX,
+    _21MUX,
+    _22MUX,
+    _23MUX,
+    _24MUX,
+    _25MUX,
+    _26MUX,
+    _27MUX,
+    _28MUX,
+    _29MUX,
+    _30MUX,
+    _31MUX,
+    _32MUX,
+    _33MUX,
+    _34MUX,
+    _35MUX,
+    _36MUX,
+    _37MUX,
+    _38MUX,
+    _39MUX,
+    _40MUX,
+    _41MUX,
+    _42MUX,
+    _43MUX,
+    _44MUX,
+    _45MUX,
+    _46MUX,
+    _47MUX,
+    _48MUX,
+    _49MUX,
+    _50MUX,
+    _51MUX,
+    _52MUX,
+    _53MUX,
+    _54MUX,
+    _55MUX,
+    _56MUX,
+    _57MUX,
+    _58MUX,
+    _59MUX,
+    _60MUX,
+    _61MUX,
+    _62MUX,
+    _63MUX,
+    _64MUX
+}SSD1306_MUX_RATIO_TypeDef;
+
+typedef enum {
+    START_LINE_00 = 0b01000000,
+    START_LINE_01,
+    START_LINE_02,
+    START_LINE_03,
+    START_LINE_04,
+    START_LINE_05,
+    START_LINE_06,
+    START_LINE_07,
+    START_LINE_08,
+    START_LINE_09,
+    START_LINE_10,
+    START_LINE_11,
+    START_LINE_12,
+    START_LINE_13,
+    START_LINE_14,
+    START_LINE_15,
+    START_LINE_16,
+    START_LINE_17,
+    START_LINE_18,
+    START_LINE_19,
+    START_LINE_20,
+    START_LINE_21,
+    START_LINE_22,
+    START_LINE_23,
+    START_LINE_24,
+    START_LINE_25,
+    START_LINE_26,
+    START_LINE_27,
+    START_LINE_28,
+    START_LINE_29,
+    START_LINE_30,
+    START_LINE_31,
+    START_LINE_32,
+    START_LINE_33,
+    START_LINE_34,
+    START_LINE_35,
+    START_LINE_36,
+    START_LINE_37,
+    START_LINE_38,
+    START_LINE_39,
+    START_LINE_40,
+    START_LINE_41,
+    START_LINE_42,
+    START_LINE_43,
+    START_LINE_44,
+    START_LINE_45,
+    START_LINE_46,
+    START_LINE_47,
+    START_LINE_48,
+    START_LINE_49,
+    START_LINE_50,
+    START_LINE_51,
+    START_LINE_52,
+    START_LINE_53,
+    START_LINE_54,
+    START_LINE_55,
+    START_LINE_56,
+    START_LINE_57,
+    START_LINE_58,
+    START_LINE_59,
+    START_LINE_60,
+    START_LINE_61,
+    START_LINE_62,
+    START_LINE_63,
+    START_LINE_64
+}SSD1306_START_LINE_TypeDef;
+
+
+typedef enum {
+    NO_REMAP_BIT = 0,
+    REMAP_BIT
+}SSD1306_REMAP_BIT_TypeDef;
+
+typedef enum {
+    SEQUENTIAL_PIN_CONFIG = 0,
+    ALTERNATIVE_PIN_CONFIG
+}SSD1306_PIN_CONFIG_BIT_TypeDef;
+
+typedef enum {
+    CHARGE_PUMP_DISABLE_BIT = 0,
+    CHARGE_PUMP_ENABLE_BIT
+}SSD1306_CHARGE_PUMP_BIT_TypeDef;
+
+typedef enum {
+    HORIZONTAL_ADDRESING_MODE = 0x00,
+    VERTICAL_ADDRESSING_MODE,
+    PAGE_ADDRESSING_MODE
+}SSD1306_ADDRESSING_MODE_TypeDef;
+
 // Struct to store transformations
 typedef struct {
     uint16_t CurrentX;
     uint16_t CurrentY;
     bool Inverted;
+    SSD1306_DISPLAY_STATUS status;
     bool Initialized;
 } SSD1306_t;
 

@@ -4,14 +4,15 @@ static const char *TAG = "Display Task";
 
 void DisplayTask (void *arg) {
 
-    oled_ssd1306 display;
+    oled_ssd1306 oled;
 
-    oled_ssd1306_create(&display, SSD1306_I2C_ADDR);
-    oled_ssd1306_Init(&display);
+    ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
     
-    ESP_LOGI(TAG, "Display initialzed");
+    oled_ssd1306_create(&oled, SSD1306_I2C_ADDR);
+    oled_ssd1306_Init(&oled);
+    
+    ESP_LOGI(TAG, "Display %s", oled.display.Initialized? "Initialized": "Not Initialized");
     for(;;) {
-        ESP_LOGI(TAG, "Display Task");
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
     }
 }
