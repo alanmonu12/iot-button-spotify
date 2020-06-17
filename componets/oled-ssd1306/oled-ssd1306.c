@@ -5,6 +5,41 @@
 // TODO: Definir los valros validos para la frecuancia y el divisor del reloj para el comando 0xD5
 //static char *TAG = "OLED";
 
+// static const uint8_t image_data_Test[32] = {
+//     // ████████████████
+//     // ████████████████
+//     // ████████████████
+//     // ████████████████
+//     // ████████████████
+//     // ████████████████
+//     // ████████████████
+//     // █∙∙∙∙∙∙∙∙███████
+//     // ████████████████
+//     // █∙█∙∙∙∙█∙███████
+//     // █∙█∙████∙███████
+//     // █∙████∙█∙███████
+//     // █∙█∙∙∙██∙███████
+//     // ████████∙███████
+//     // █∙∙∙∙∙∙∙████████
+//     // ████████████████
+//     0xff, 0xff, 
+//     0xff, 0xff, 
+//     0xff, 0xff, 
+//     0xff, 0xff, 
+//     0xff, 0xff, 
+//     0xff, 0xff, 
+//     0xff, 0xff, 
+//     0x80, 0x7f, 
+//     0xff, 0xff, 
+//     0xa1, 0x7f, 
+//     0xaf, 0x7f, 
+//     0xbd, 0x7f, 
+//     0xa3, 0x7f, 
+//     0xff, 0x7f, 
+//     0x80, 0xff, 
+//     0xff, 0xff
+// };
+
 /**
  * @brief i2c master initialization
  */
@@ -38,6 +73,25 @@ static esp_err_t i2c_master_write_slave(i2c_port_t i2c_num, uint8_t *data_wr, si
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, adress | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write(cmd, data_wr, size, ACK_CHECK_EN);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+
+/**
+ * @brief 
+ *
+ */
+static esp_err_t i2c_master_write_data_slave(i2c_port_t i2c_num, uint8_t *data_wr, size_t size, uint8_t adress)
+{
+    uint8_t cmd_data = 0x40;
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, adress | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write(cmd, &cmd_data, 1, ACK_CHECK_EN);
     i2c_master_write(cmd, data_wr, size, ACK_CHECK_EN);
     i2c_master_stop(cmd);
     esp_err_t ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
@@ -103,14 +157,12 @@ void oled_ssd1306_Init(oled_ssd1306 *self) {
     oled_ssd1306_set_charge_pump_config(self, CHARGE_PUMP_ENABLE_BIT);
     oled_ssd1306_display_on(self);
     oled_ssd1306_set_memory_addressing_mode(self, HORIZONTAL_ADDRESING_MODE);
-    //oled_ssd1306_set_column_address(self, 0x00, 0x10);
-    oled_ssd1306_set_page_address(self, 0x00, 0xFF);
+    //oled_ssd1306_set_page_address(self, 0x00, 0xFF);
 
 
 
     oled_ssd1306_Fill(self, Black);
     oled_ssd1306_UpdateScreen(self);
-
 
     self->display.Initialized = true;
 }
@@ -122,9 +174,8 @@ void oled_ssd1306_Fill(oled_ssd1306 *self, SSD1306_COLOR color) {
     
     /* Set memory */
     uint32_t i;
-    self->buffer[0] = CTRL_DATA;
-    ESP_LOGI("OLED", "%u", self->buffer[0]);
-    for(i = 1; i < 513; i++) {
+
+    for(i = 0; i < 512; i++) {
         self->buffer[i] = (color == Black) ? 0x00 : 0xFF;
     }
 
@@ -134,27 +185,9 @@ void oled_ssd1306_Fill(oled_ssd1306 *self, SSD1306_COLOR color) {
  * @brief 
  */
 void oled_ssd1306_UpdateScreen(oled_ssd1306 *self) {
+    uint8_t data_cmd = 0x40;
 
-    ESP_ERROR_CHECK(i2c_master_write_slave(I2C_MASTER_NUM, self->buffer, 513, self->address));
-    //uint8_t data[] = {0xB0, 0x00, 0x10};
-    //uint8_t page_address = 0;
-    //uint8_t ctrl_data = 0x40;
-    //ESP_ERROR_CHECK(i2c_master_write_slave(I2C_MASTER_NUM, bitmap, sizeof bitmap, self->address));
-    // Write data to each page of RAM. Number of pages
-    // depends on the screen height:
-    //
-    //  * 32px   ==  4 pages
-    //  * 64px   ==  8 pages
-    //  * 128px  ==  16 pages
-    //for(uint8_t i = 0; i < SSD1306_HEIGHT/8; i++) {
-        //page_address = data[0] + i;
-        //ESP_ERROR_CHECK(i2c_master_write_slave(I2C_MASTER_NUM, &page_address, 1, self->address));
-        //uint8_t data_to_send[] = {ctrl_data, 0x00};
-        //ESP_ERROR_CHECK(i2c_master_write_slave(I2C_MASTER_NUM, data_to_send, sizeof data_to_send, self->address));
-        //ESP_ERROR_CHECK(i2c_master_write_slave(I2C_MASTER_NUM, &data[1], 1, self->address));
-        //ESP_ERROR_CHECK(i2c_master_write_slave(I2C_MASTER_NUM, &data[2], 1, self->address));
-        //ESP_ERROR_CHECK(i2c_master_write_slave(I2C_MASTER_NUM, &self->buffer[SSD1306_WIDTH*i], SSD1306_WIDTH, self->address));
-    //}
+    ESP_ERROR_CHECK(i2c_master_write_data_slave(I2C_MASTER_NUM, self->buffer, 512, self->address));
 }
 
 /**
@@ -295,7 +328,35 @@ void oled_ssd1306_set_page_address(oled_ssd1306 *self, uint8_t page_start, uint8
  * @brief 
  */
 void oled_ssd1306_draw_bitmap(oled_ssd1306 *self, uint8_t *bitmap, uint16_t width, uint16_t height) {
-    uint8_t byte_data = 0x00;
-    uint8_t bytes_in_width = width / 8;
-    uint8_t bytes_in_height = height / 8;
+    
+}
+
+/**
+ * @brief 
+ */
+void oled_ssd1306_DrawPixel(oled_ssd1306 *self, uint8_t x, uint8_t y, SSD1306_COLOR color) {
+    /**
+    * Revisar si el pixel está dentro de la pantalla
+    */
+    if (x > SSD1306_WIDTH || y > SSD1306_HEIGHT) {
+        return;
+    }
+
+        // Draw in the right color
+    if(color == White) {
+        self->buffer[x + (y / 8) * SSD1306_WIDTH] |= 1 << (y % 8);
+    } else { 
+        self->buffer[x + (y / 8) * SSD1306_WIDTH] &= ~(1 << (y % 8));
+    }
+
+}
+
+void oled_ssd1306_test_all_pixel(oled_ssd1306 *self) {
+    
+    for (uint8_t i = 0; i < SSD1306_HEIGHT; i++) {
+        for (uint8_t j = 0; j < SSD1306_WIDTH; j++) {
+            oled_ssd1306_DrawPixel(self,j,i,White);
+            oled_ssd1306_UpdateScreen(self);
+        }
+    }
 }
