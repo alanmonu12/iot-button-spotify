@@ -310,31 +310,39 @@ void oled_ssd1306_draw_bitmap(oled_ssd1306 *self, const uint8_t *bitmap, uint16_
         return;
     }
 
-    oled_ssd1306_SetCursor(self, x, y);
-
-
+    /**
+     * Numero de bytes en el eje x que tiene el bitmap
+     */
     uint8_t x_bytes = round_closest(width, 8);
-    uint8_t byte_counter = 0;
-    uint8_t x_temp = x;
+    /**
+     * Número de bytes que se han enviando al bufer
+     */
+    uint8_t byte_counter = 1;
+    /**
+     * Se guarda el valor incial de x para poder regresar cada vez que 
+     * se haya enviado una fila completa
+     */
+    uint8_t x_start_value = x;
     
     /**
      * Iteramos sobre todos los bytes que componen el bit map
      */
-    for(uint16_t i = 0; i < (width * height)/8; i++, bitmap++){
+    for(uint16_t i = 0; i < (width * height)/8; i++, bitmap++, byte_counter++){
         /**
          * Iteramos sobre el byte para pintar cada uno de los pixeles
          */
-        for (int j = 7; j >= 0; j--) {
+        for (int j = 7; j >= 0; j--, x++) {
+            /**
+             * Se calcula si el bit es Black o White con un operación AND
+             */
             SSD1306_COLOR color = (*bitmap & (1 << j)) ? White : Black;
-            oled_ssd1306_DrawPixel(self, x_temp, y, color);
-            x_temp++;
+            oled_ssd1306_DrawPixel(self, x, y, color);
         }
-        byte_counter++;
-        
+
         if (byte_counter >= x_bytes) {
             byte_counter = 0;
+            x = x_start_value;
             y++;
-            x_temp = x;
         }
     }
 
