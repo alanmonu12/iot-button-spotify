@@ -5,40 +5,10 @@
 // TODO: Definir los valros validos para la frecuancia y el divisor del reloj para el comando 0xD5
 //static char *TAG = "OLED";
 
-// static const uint8_t image_data_Test[32] = {
-//     // ████████████████
-//     // ████████████████
-//     // ████████████████
-//     // ████████████████
-//     // ████████████████
-//     // ████████████████
-//     // ████████████████
-//     // █∙∙∙∙∙∙∙∙███████
-//     // ████████████████
-//     // █∙█∙∙∙∙█∙███████
-//     // █∙█∙████∙███████
-//     // █∙████∙█∙███████
-//     // █∙█∙∙∙██∙███████
-//     // ████████∙███████
-//     // █∙∙∙∙∙∙∙████████
-//     // ████████████████
-//     0xff, 0xff, 
-//     0xff, 0xff, 
-//     0xff, 0xff, 
-//     0xff, 0xff, 
-//     0xff, 0xff, 
-//     0xff, 0xff, 
-//     0xff, 0xff, 
-//     0x80, 0x7f, 
-//     0xff, 0xff, 
-//     0xa1, 0x7f, 
-//     0xaf, 0x7f, 
-//     0xbd, 0x7f, 
-//     0xa3, 0x7f, 
-//     0xff, 0x7f, 
-//     0x80, 0xff, 
-//     0xff, 0xff
-// };
+static uint8_t round_closest(uint8_t dividend, uint8_t divisor)
+{
+    return (dividend + (divisor / 2)) / divisor;
+}
 
 /**
  * @brief i2c master initialization
@@ -157,7 +127,8 @@ void oled_ssd1306_Init(oled_ssd1306 *self) {
     oled_ssd1306_set_charge_pump_config(self, CHARGE_PUMP_ENABLE_BIT);
     oled_ssd1306_display_on(self);
     oled_ssd1306_set_memory_addressing_mode(self, HORIZONTAL_ADDRESING_MODE);
-    //oled_ssd1306_set_page_address(self, 0x00, 0xFF);
+    oled_ssd1306_set_column_address(self, 0x00, 0xFF);
+    oled_ssd1306_set_page_address(self, 0x00, 0x03);
 
 
 
@@ -185,9 +156,11 @@ void oled_ssd1306_Fill(oled_ssd1306 *self, SSD1306_COLOR color) {
  * @brief 
  */
 void oled_ssd1306_UpdateScreen(oled_ssd1306 *self) {
-    uint8_t data_cmd = 0x40;
 
-    ESP_ERROR_CHECK(i2c_master_write_data_slave(I2C_MASTER_NUM, self->buffer, 512, self->address));
+    for(uint8_t i = 0; i < SSD1306_HEIGHT / 8; i++) {
+        ESP_ERROR_CHECK(i2c_master_write_data_slave(I2C_MASTER_NUM, self->buffer + (128 * i), 128, self->address));
+    }
+    
 }
 
 /**
@@ -314,7 +287,7 @@ void oled_ssd1306_set_memory_addressing_mode(oled_ssd1306 *self,SSD1306_ADDRESSI
  * @brief 
  */
 void oled_ssd1306_set_column_address(oled_ssd1306 *self, uint8_t column_start, uint8_t column_end) {
-    _send_with_double_byte_cmd(SET_COLUMN_ADDRESS_CMD, column_start, column_start, self);
+    _send_with_double_byte_cmd(SET_COLUMN_ADDRESS_CMD, column_start, column_end, self);
 }
 
 /**
@@ -327,8 +300,44 @@ void oled_ssd1306_set_page_address(oled_ssd1306 *self, uint8_t page_start, uint8
 /**
  * @brief 
  */
-void oled_ssd1306_draw_bitmap(oled_ssd1306 *self, uint8_t *bitmap, uint16_t width, uint16_t height) {
+void oled_ssd1306_draw_bitmap(oled_ssd1306 *self, const uint8_t *bitmap, uint16_t width, uint16_t height, uint8_t x, uint8_t y) {
+
     
+    /**
+     * Revisar que la imagen no sea más grande que la pantalla
+     **/
+    if((width + x) > SSD1306_WIDTH || (height + y) > SSD1306_HEIGHT) {
+        return;
+    }
+
+    oled_ssd1306_SetCursor(self, x, y);
+
+
+    uint8_t x_bytes = round_closest(width, 8);
+    uint8_t byte_counter = 0;
+    uint8_t x_temp = x;
+    
+    /**
+     * Iteramos sobre todos los bytes que componen el bit map
+     */
+    for(uint16_t i = 0; i < (width * height)/8; i++, bitmap++){
+        /**
+         * Iteramos sobre el byte para pintar cada uno de los pixeles
+         */
+        for (int j = 7; j >= 0; j--) {
+            SSD1306_COLOR color = (*bitmap & (1 << j)) ? White : Black;
+            oled_ssd1306_DrawPixel(self, x_temp, y, color);
+            x_temp++;
+        }
+        byte_counter++;
+        
+        if (byte_counter >= x_bytes) {
+            byte_counter = 0;
+            y++;
+            x_temp = x;
+        }
+    }
+
 }
 
 /**
@@ -351,6 +360,9 @@ void oled_ssd1306_DrawPixel(oled_ssd1306 *self, uint8_t x, uint8_t y, SSD1306_CO
 
 }
 
+/**
+ * @brief 
+ */
 void oled_ssd1306_test_all_pixel(oled_ssd1306 *self) {
     
     for (uint8_t i = 0; i < SSD1306_HEIGHT; i++) {
@@ -359,4 +371,72 @@ void oled_ssd1306_test_all_pixel(oled_ssd1306 *self) {
             oled_ssd1306_UpdateScreen(self);
         }
     }
+}
+
+/**
+ * @brief 
+ */
+char oled_ssd1306_WriteChar(oled_ssd1306 *self, char ch, FontDef Font, SSD1306_COLOR color) {
+    uint32_t i, b, j;
+    
+    // Check if character is valid
+    if (ch < 32 || ch > 126)
+        return 0;
+    
+    // Check remaining space on current line
+    if (SSD1306_WIDTH < (self->display.CurrentX + Font.FontWidth) ||
+        SSD1306_HEIGHT < (self->display.CurrentY + Font.FontHeight))
+    {
+        // Not enough space on current line
+        return 0;
+    }
+    
+    // Use the font to write
+    for(i = 0; i < Font.FontHeight; i++) {
+        b = Font.data[(ch - 32) * Font.FontHeight + i];
+        for(j = 0; j < Font.FontWidth; j++) {
+            if((b << j) & 0x8000)  {
+                oled_ssd1306_DrawPixel(self, self->display.CurrentX + j, (self->display.CurrentY + i), (SSD1306_COLOR) color);
+            } else {
+                oled_ssd1306_DrawPixel(self, self->display.CurrentX + j, (self->display.CurrentY + i), (SSD1306_COLOR)!color);
+            }
+        }
+    }
+    
+    // The current space is now taken
+    self->display.CurrentX += Font.FontWidth;
+    
+    // Return written char for validation
+    return ch;
+}
+
+/**
+ * @brief 
+ */
+char oled_ssd1306_WriteString(oled_ssd1306 *self, char* str, FontDef Font, SSD1306_COLOR color) {
+    // Write until null-byte
+    ESP_LOGI("String: ", "%s", str);
+
+    while (*str) {
+        ESP_LOGI("Char: ", "%c", *str);
+
+        if (oled_ssd1306_WriteChar(self, *str, Font, color) != *str) {
+            // Char could not be written
+            return *str;
+        }
+        
+        // Next char
+        str++;
+    }
+    
+    // Everything ok
+    return *str;
+}
+
+/**
+ * @brief 
+ */
+void oled_ssd1306_SetCursor(oled_ssd1306 *self, uint8_t x, uint8_t y) {
+    self->display.CurrentX = x;
+    self->display.CurrentY = y;
 }

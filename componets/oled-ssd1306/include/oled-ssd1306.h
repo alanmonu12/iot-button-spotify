@@ -62,12 +62,12 @@ void oled_ssd1306_set_page_address(oled_ssd1306 *self, uint8_t page_start, uint8
 /**
  * Funciones para dibujar en la pantalla
  */
-void oled_ssd1306_draw_bitmap(oled_ssd1306 *self, uint8_t *bitmap, uint16_t height, uint16_t width);
+void oled_ssd1306_draw_bitmap(oled_ssd1306 *self, const uint8_t *bitmap, uint16_t width, uint16_t height, uint8_t x, uint8_t y);
 void oled_ssd1306_DrawPixel(oled_ssd1306 *self, uint8_t x, uint8_t y, SSD1306_COLOR color);
 void oled_ssd1306_test_all_pixel(oled_ssd1306 *self);
-// char oled_ssd1306_WriteChar(oled_ssd1306 *self, char ch, FontDef Font, SSD1306_COLOR color);
-// char oled_ssd1306_WriteString(oled_ssd1306 *self, char* str, FontDef Font, SSD1306_COLOR color);
-// void oled_ssd1306_SetCursor(oled_ssd1306 *self, uint8_t x, uint8_t y);
+char oled_ssd1306_WriteChar(oled_ssd1306 *self, char ch, FontDef Font, SSD1306_COLOR color);
+char oled_ssd1306_WriteString(oled_ssd1306 *self, char* str, FontDef Font, SSD1306_COLOR color);
+void oled_ssd1306_SetCursor(oled_ssd1306 *self, uint8_t x, uint8_t y);
 // void oled_ssd1306_Line(oled_ssd1306 *self, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
 // void oled_ssd1306_DrawArc(oled_ssd1306 *self, uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle, uint16_t sweep, SSD1306_COLOR color);
 // void oled_ssd1306_DrawCircle(oled_ssd1306 *self, uint8_t par_x, uint8_t par_y, uint8_t par_r, SSD1306_COLOR color);
