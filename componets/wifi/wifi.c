@@ -1,4 +1,6 @@
 #include "include/wifi.h"
+#include "oled-freeRTOS.h"
+
 
 
 static const char *TAG = "wifi station";
@@ -141,7 +143,8 @@ void wifi_Task (void *arg) {
             /**
              * Cuando se obtiene la conexión con AP se liberan las tareas 
              */
-            //xTaskNotifyGive( xSpotifyTask );
+            /* Send a notification to prvTask2(), bringing it out of the Blocked state. */
+            xTaskNotifyGive( xDisplayTask );
 
         } else if (bits & WIFI_FAIL_BIT) {
             ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
@@ -156,8 +159,6 @@ void wifi_Task (void *arg) {
             ESP_LOGI(TAG, "WIFI CONFIG LIKE AP");
             wifi_ap_config();
             ESP_LOGI(TAG, "wifi_init_ap finished.");
-            /* Send a notification to prvTask2(), bringing it out of the Blocked state. */
-            //xTaskNotifyGive( xServerTask );
         }
         else {
             ESP_LOGE(TAG, "UNEXPECTED EVENT");
