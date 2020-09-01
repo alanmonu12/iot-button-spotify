@@ -17,8 +17,9 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
-#include "../componets/wifi/include/wifi.h"
+#include "wifi.h"
 #include "oled-freeRTOS.h"
+#include "spotify-client-freeRTOS.h"
 
 /* Handles for the tasks create by main(). */
 //static TaskHandle_t xServerTask = NULL;
@@ -39,7 +40,7 @@ void app_main(void)
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     xTaskCreatePinnedToCore(wifi_Task, "wifi_task", 2048*2, NULL, 10, &xWifiTask, 1);
     xTaskCreatePinnedToCore(DisplayTask, "DisplayTask", 2048*4, NULL, 10, &xDisplayTask, 0);
-    //xTaskCreatePinnedToCore(server_Task, "server_task", 2048, NULL, 10, &xServerTask, 1);
+    xTaskCreatePinnedToCore(spotifyClientTask, "spotifyClient", 2048*4, NULL, 10, &xSpotifyClientTask, 0);
     //xTaskCreatePinnedToCore(spotify_client_task, "spotify_client_task", 2048, NULL, 10, &xSpotifyTask, 0);
     
 }

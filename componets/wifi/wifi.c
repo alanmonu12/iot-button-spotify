@@ -1,7 +1,6 @@
 #include "include/wifi.h"
 #include "oled-freeRTOS.h"
-
-
+#include "spotify-client-freeRTOS.h"
 
 static const char *TAG = "wifi station";
 
@@ -145,11 +144,13 @@ void wifi_Task (void *arg) {
              */
             /* Send a notification to prvTask2(), bringing it out of the Blocked state. */
             xTaskNotifyGive( xDisplayTask );
-
-        } else if (bits & WIFI_FAIL_BIT) {
+            xTaskNotifyGive(xSpotifyClientTask);
+        }
+        else if (bits & WIFI_FAIL_BIT)
+        {
             ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-                    ESP_WIFI_SSID, ESP_WIFI_PASS);
-        } 
+            ESP_WIFI_SSID, ESP_WIFI_PASS);
+        }
         else if (bits & WIFI_DISCONNECTED_BIT) {
             ESP_LOGI(TAG, "WIFI DISCONNECTED");
             vTaskDelay(5000 / portTICK_PERIOD_MS);

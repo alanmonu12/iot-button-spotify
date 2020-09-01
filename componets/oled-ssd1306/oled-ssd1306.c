@@ -423,10 +423,8 @@ char oled_ssd1306_WriteChar(oled_ssd1306 *self, char ch, FontDef Font, SSD1306_C
  */
 char oled_ssd1306_WriteString(oled_ssd1306 *self, char* str, FontDef Font, SSD1306_COLOR color) {
     // Write until null-byte
-    ESP_LOGI("String: ", "%s", str);
 
     while (*str) {
-        ESP_LOGI("Char: ", "%c", *str);
 
         if (oled_ssd1306_WriteChar(self, *str, Font, color) != *str) {
             // Char could not be written

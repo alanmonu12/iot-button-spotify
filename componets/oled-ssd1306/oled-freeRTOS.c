@@ -49,8 +49,17 @@ void DisplayTask (void *arg) {
 
     oled_ssd1306_draw_bitmap(&oled, image_data_spo, 128, 32, 0, 0);
     oled_ssd1306_UpdateScreen(&oled);
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
     
+    oled_ssd1306_Fill(&oled, Black);
+    oled_ssd1306_SetCursor(&oled, 25, 0);
+    oled_ssd1306_WriteString(&oled, "Ingresa a", Font_6x8, White);
+    oled_ssd1306_SetCursor(&oled, 0, 15);
+    oled_ssd1306_WriteString(&oled, "esp32-spotify.local/auth", Font_6x8, White);
+    oled_ssd1306_UpdateScreen(&oled);
+
     ESP_LOGI(TAG, "Display %s", oled.display.Initialized? "Initialized": "Not Initialized");
+
     for(;;) {
 
     }
